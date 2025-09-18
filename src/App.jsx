@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import './App.scss';
 import { MoviesList } from './components/MoviesList';
 import moviesFromServer from './api/movies.json';
@@ -12,12 +12,20 @@ export const App = () => {
 
   const normalizedQuery = query.trim().toLowerCase();
 
-  const visibleMovies = moviesFromServer.filter(movie => {
-    const title = movie.title.toLowerCase();
-    const description = movie.description.toLowerCase();
+  // ✨ Безпечне нормалізоване порівняння
+  const normalize = (text) => (text || '').toLowerCase();
 
-    return title.includes(normalizedQuery) || description.includes(normalizedQuery);
-  });
+  const visibleMovies = useMemo(() => {
+    return moviesFromServer.filter(movie => {
+      const title = normalize(movie.title);
+      const description = normalize(movie.description);
+
+      return (
+        title.includes(normalizedQuery)
+        || description.includes(normalizedQuery)
+      );
+    });
+  }, [normalizedQuery]);
 
   return (
     <div className="page">
